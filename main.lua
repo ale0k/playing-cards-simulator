@@ -46,6 +46,7 @@ function Card:drag(mouseX, mouseY)
         self.state.drag.mouseOffset.x = self.x - mouseX
         self.state.drag.mouseOffset.y = self.y - mouseY
         self.state.drag.on = true
+        print("DRAG: ", self.state.drag.on)
     end
 end
 
@@ -59,28 +60,32 @@ Cards = {}
 function love.load()
     for i = 0, 3 do
         for j = 0, 8 do
-            table.insert(Cards, love.graphics.newQuad(j * CardWidth, i * CardHeight, CardWidth, CardHeight, CardsImage))
+            local quad = love.graphics.newQuad(j * CardWidth, i * CardHeight, CardWidth, CardHeight, CardsImage)
+            local card = Card:init((j + 1) * 100, (i + 1) * 100, CardWidth, CardHeight, quad)
+            table.insert(Cards, card)
         end
     end
     RandomNumber = love.math.random(1, NumCards)
-    NewCard = Card:init(0, 0, CardWidth, CardHeight, Cards[RandomNumber])
 end
 
 function love.update(dt)
     local mouseX, mouseY = love.mouse.getPosition()
-    if NewCard:isHovering(mouseX, mouseY) and love.mouse.isDown(1) then
-        NewCard:drag(mouseX, mouseY)
-    else
-        NewCard.state.drag.on = false
+    for _, card in pairs(Cards) do
+        if love.mouse.isDown(1) and card:isHovering(mouseX, mouseY) then
+            card:drag(mouseX, mouseY)
+        else
+            card.state.drag.on = false
+        end
     end
 end
 
 function love.draw()
     -- push:start()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill", NewCard.x, NewCard.y, CardWidth, CardHeight)
-    love.graphics.draw(CardsImage, NewCard.quad, NewCard.x, NewCard.y)
-    love.graphics.print("Card Position: " .. NewCard.x .. ", " .. NewCard.y)
+    for _, card in pairs(Cards) do
+        love.graphics.rectangle("fill", card.x, card.y, card.width, card.height)
+        love.graphics.draw(CardsImage, card.quad, card.x, card.y)
+    end
     -- push:finish()
 end
 
