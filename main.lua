@@ -16,6 +16,15 @@ function Card:init(x, y, width, height, quad)
    self.width = width
    self.height = height
    self.quad = quad
+   self.state = {
+        drag = {
+            on = false,
+            mouseOffset = {
+                x = 0,
+                y = 0
+            }
+        }
+    }
    return self
 end
 
@@ -30,8 +39,14 @@ function Card:isHovering(mouseX, mouseY)
 end
 
 function Card:drag(mouseX, mouseY)
-    self.x = mouseX - (self.width / 2)
-    self.y = mouseY - (self.height / 2)
+    if self.state.drag.on then
+        self.x = mouseX + self.state.drag.mouseOffset.x
+        self.y = mouseY + self.state.drag.mouseOffset.y
+    else
+        self.state.drag.mouseOffset.x = self.x - mouseX
+        self.state.drag.mouseOffset.y = self.y - mouseY
+        self.state.drag.on = true
+    end
 end
 
 CardsImage = love.graphics.newImage("BaseCards-Sheet.png")
@@ -48,15 +63,15 @@ function love.load()
         end
     end
     RandomNumber = love.math.random(1, NumCards)
-    local cardImage = Cards[RandomNumber]
-    print(cardImage)
-    NewCard = Card:init(0, 0, CardWidth, CardHeight, cardImage)
+    NewCard = Card:init(0, 0, CardWidth, CardHeight, Cards[RandomNumber])
 end
 
 function love.update(dt)
     local mouseX, mouseY = love.mouse.getPosition()
     if NewCard:isHovering(mouseX, mouseY) and love.mouse.isDown(1) then
         NewCard:drag(mouseX, mouseY)
+    else
+        NewCard.state.drag.on = false
     end
 end
 
