@@ -46,7 +46,6 @@ function Card:drag(mouseX, mouseY)
         self.state.drag.mouseOffset.x = self.x - mouseX
         self.state.drag.mouseOffset.y = self.y - mouseY
         self.state.drag.on = true
-        print("DRAG: ", self.state.drag.on)
     end
 end
 
@@ -54,18 +53,17 @@ CardsImage = love.graphics.newImage("BaseCards-Sheet.png")
 CardWidth = 53
 CardHeight = 71
 CardSets = 4
-NumCards = CardSets * 9
 Cards = {}
 
 function love.load()
     for i = 0, 3 do
         for j = 0, 8 do
             local quad = love.graphics.newQuad(j * CardWidth, i * CardHeight, CardWidth, CardHeight, CardsImage)
-            local card = Card:init((j + 1) * 100, (i + 1) * 100, CardWidth, CardHeight, quad)
+            local card = Card:init((j + 1) * 75, (i + 1) * 100, CardWidth, CardHeight, quad)
             table.insert(Cards, card)
         end
     end
-    RandomNumber = love.math.random(1, NumCards)
+    Shuffle(Cards)
 end
 
 function love.update(dt)
@@ -77,6 +75,11 @@ function love.update(dt)
             card.state.drag.on = false
         end
     end
+    function love.keypressed(key, scancode, isrepeat)
+   if key == 's' then
+        Shuffle(Cards)
+   end
+end
 end
 
 function love.draw()
@@ -91,4 +94,13 @@ end
 
 function love.resize(w, h)
     -- push:resize(w, h)
+end
+
+function Shuffle(cards)
+    for i = #cards, 2, -1 do
+        local j = love.math.random(1, i)
+        cards[i], cards[j] = cards[j], cards[i]
+        cards[i].x, cards[j].x = cards[j].x, cards[i].x
+        cards[i].y, cards[j].y = cards[j].y, cards[i].y
+    end
 end
