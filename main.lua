@@ -9,13 +9,14 @@
 Card = {}
 Card.__index = Card
 
-function Card:init(x, y, width, height, quad)
+function Card:init(x, y, width, height, face, back)
    self = setmetatable({}, Card)
    self.x = x
    self.y = y
    self.width = width
    self.height = height
-   self.quad = quad
+   self.face = face
+   self.back = back
    self.state = {
         drag = {
             on = false,
@@ -23,6 +24,9 @@ function Card:init(x, y, width, height, quad)
                 x = 0,
                 y = 0
             }
+        },
+        flip = {
+            on = false,
         }
     }
    return self
@@ -49,7 +53,21 @@ function Card:drag(mouseX, mouseY)
     end
 end
 
+function Card:flip()
+    self.state.flip.on = not self.state.flip.on
+end
+
+function Card:draw()
+    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, 2, 2)
+    if self.state.flip.on then
+        love.graphics.draw(self.back, self.x, self.y)
+    else
+        love.graphics.draw(CardsImage, self.face, self.x, self.y)
+    end
+end
+
 CardsImage = love.graphics.newImage("BaseCards-Sheet.png")
+CardBackImage = love.graphics.newImage("CardBack.png")
 CardWidth = 53
 CardHeight = 71
 CardSets = 4
@@ -58,8 +76,8 @@ Cards = {}
 function love.load()
     for i = 0, 3 do
         for j = 0, 8 do
-            local quad = love.graphics.newQuad(j * CardWidth, i * CardHeight, CardWidth, CardHeight, CardsImage)
-            local card = Card:init((j + 1) * 75, (i + 1) * 100, CardWidth, CardHeight, quad)
+            local face = love.graphics.newQuad(j * CardWidth, i * CardHeight, CardWidth, CardHeight, CardsImage)
+            local card = Card:init((j + 1) * 75, (i + 1) * 100, CardWidth, CardHeight, face, CardBackImage)
             table.insert(Cards, card)
         end
     end
@@ -71,23 +89,26 @@ function love.update(dt)
     for _, card in pairs(Cards) do
         if love.mouse.isDown(1) and card:isHovering(mouseX, mouseY) then
             card:drag(mouseX, mouseY)
+        elseif love.mouse.isDown(2) and card:isHovering(mouseX, mouseY) then
+            card:flip()
         else
             card.state.drag.on = false
         end
     end
-    function love.keypressed(key, scancode, isrepeat)
-   if key == 's' then
-        Shuffle(Cards)
-   end
+    
 end
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == 's' then
+        Shuffle(Cards)
+    end
 end
 
 function love.draw()
     -- push:start()
     love.graphics.setColor(1, 1, 1, 1)
     for _, card in pairs(Cards) do
-        love.graphics.rectangle("fill", card.x, card.y, card.width, card.height)
-        love.graphics.draw(CardsImage, card.quad, card.x, card.y)
+        card:draw()
     end
     -- push:finish()
 end
