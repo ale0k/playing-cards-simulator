@@ -27,6 +27,8 @@ function Card:init(x, y, width, height, face, back)
         },
         flip = {
             on = false,
+            debounceTime = 0.1,
+            nextAvailableTime = 0
         }
     }
    return self
@@ -54,7 +56,13 @@ function Card:drag(mouseX, mouseY)
 end
 
 function Card:flip()
-    self.state.flip.on = not self.state.flip.on
+    local currentTime = love.timer.getTime()
+    if currentTime > self.state.flip.nextAvailableTime then
+        self.state.flip.on = not self.state.flip.on
+    end
+
+    self.state.flip.nextAvailableTime = currentTime + self.state.flip.debounceTime
+    print(currentTime,self.state.flip.nextAvailableTime)
 end
 
 function Card:draw()
@@ -95,7 +103,6 @@ function love.update(dt)
             card.state.drag.on = false
         end
     end
-    
 end
 
 function love.keypressed(key, scancode, isrepeat)
