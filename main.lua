@@ -108,6 +108,8 @@ end
 function love.keypressed(key, scancode, isrepeat)
     if key == 's' then
         Shuffle(Cards)
+    elseif key == 'f' then
+        Flip(Cards)
     end
 end
 
@@ -130,5 +132,11 @@ function Shuffle(cards)
         cards[i], cards[j] = cards[j], cards[i]
         cards[i].x, cards[j].x = cards[j].x, cards[i].x
         cards[i].y, cards[j].y = cards[j].y, cards[i].y
+    end
+end
+
+function Flip(cards)
+    for i = 1, #cards, 1 do
+        cards[i]:flip()
     end
 end
