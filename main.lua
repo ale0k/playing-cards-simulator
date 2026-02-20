@@ -110,6 +110,10 @@ function love.keypressed(key, scancode, isrepeat)
         Shuffle(Cards)
     elseif key == 'f' then
         Flip(Cards)
+    elseif key == 'u' then
+        Flip(Cards, 'up')
+    elseif key == 'd' then
+        Flip(Cards, 'down')
     end
 end
 
@@ -135,8 +139,22 @@ function Shuffle(cards)
     end
 end
 
-function Flip(cards)
-    for i = 1, #cards, 1 do
-        cards[i]:flip()
+function Flip(cards, orientation)
+    if orientation == nil then
+        for i = 1, #cards, 1 do
+            cards[i]:flip()
+        end
+    elseif orientation == 'up' then
+        for i = 1, #cards, 1 do
+            if cards[i].state.flip.on then
+                cards[i]:flip()
+            end
+        end
+    elseif orientation == 'down' then
+        for i = 1, #cards, 1 do
+            if cards[i].state.flip.on == false then
+                cards[i]:flip()
+            end
+        end
     end
 end
